@@ -32,4 +32,18 @@
         android:layout_gravity="right"
         android:text="写BMP文件" />
 
+    <ImageView
+        android:id="@+id/iv_expression"
+        android:layout_width="91dp"
+        android:layout_height="96dp"
+        android:background="#000000"/>
+
+    <ImageView
+        android:id="@+id/iv_face_edge"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:scaleType="fitXY"
+        android:background="#55ff0000"
+        />
+
 </FrameLayout>

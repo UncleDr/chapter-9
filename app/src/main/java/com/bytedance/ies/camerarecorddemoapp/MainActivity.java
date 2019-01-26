@@ -8,15 +8,17 @@ import android.graphics.ImageFormat;
 import android.hardware.Camera;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.PermissionChecker;
 import android.util.Log;
 import android.view.Surface;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.PermissionChecker;
 import android.widget.Toast;
 
 import java.io.IOException;
@@ -39,6 +41,9 @@ public class MainActivity extends Activity {
     private ProgressDialog dialog;
     private Button mCopyModeButton;
     private Button mWriteBMPButton;
+    ImageView iv_expression;
+    ImageView iv_face_edge;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,18 +57,54 @@ public class MainActivity extends Activity {
         // Example of a call to a native method
         tv = (TextView) findViewById(R.id.sample_text);
         tv.setText("ooo");
+        iv_expression = findViewById(R.id.iv_expression);
+        iv_face_edge = findViewById(R.id.iv_face_edge);
 
         FaceDetectHelper.getHelper().setLicense("TvEbeOPnOCXa62ql1AgSpWADbsODeYUfAz5eo8P+KJPxmD42PeH+UDg1kweybbeXzb3Yj0IHcOtNXMkijk7uJ0n9QS4FnB4Kvp2iKnFDEJ+/wdqGfasiA/3vbvpSakJ79sZG/zt8pMESgPrmaBh59OoMZMpfwAFcibdc/b38KNU=");
         FaceDetectHelper.getHelper().setFaceDetectedCallback(new FaceDetectHelper.OnFaceDetectedCallback() {
             @Override
-            public void onFaceDetected(final int ret) {
+            public void onFaceDetected(final int ret, final int left, final int top, final int right, final int bottom) {
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
                         //TODO:
                         // 1 将人脸表情等通过ICON展示在UI上面
                         // 2 增加人脸位置返回值之后，通过方框的图在UI上面现实人脸区域
-                        tv.setText(ret + "");
+                        //     FrameLayout.LayoutParams params = (FrameLayout.LayoutParams) iv.getLayoutParams();
+
+                        switch (ret) {
+                            case FaceInfo.BEF_EYE_BLINK:
+                                iv_expression.setImageResource(R.drawable.eye_blink);
+                                break;
+                            case FaceInfo.BEF_MOUTH_AH:
+                                iv_expression.setImageResource(R.drawable.mouth_yaw);
+                                break;
+                            case FaceInfo.BEF_HEAD_YAW:
+                                iv_expression.setImageResource(R.drawable.head_yaw);
+                                break;
+                            case FaceInfo.BEF_HEAD_PITCH:
+                                iv_expression.setImageResource(R.drawable.head_pitch);
+                                break;
+                            case FaceInfo.BEF_BROW_JUMP:
+                                iv_expression.setImageResource(R.drawable.brow_jump);
+                                break;
+                            default:
+                                iv_expression.setBackgroundColor(0x00000000);
+                                break;
+                        }
+
+                        ViewGroup.MarginLayoutParams parameters = (ViewGroup.MarginLayoutParams) iv_face_edge.getLayoutParams();
+
+                        parameters.leftMargin = (int)(1080-bottom*1.5f);
+                        parameters.topMargin = (int)(1920-right*1.5f);
+                        parameters.height = (int) ((right - left)*1.5f);
+                        parameters.width = (int)((bottom - top)*1.5f);
+
+                        iv_face_edge.setLayoutParams(parameters);
+                        //tv.setText(ret + "");
+                        Log.i("MainActivity", String.valueOf(left) + "," + String.valueOf(top) + "" + right + "" + bottom);
+
+
                     }
                 });
             }
